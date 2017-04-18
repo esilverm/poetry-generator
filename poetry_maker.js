@@ -3,9 +3,8 @@
   creates poetry from its content.
 
   @TODO:
-    * create a home screen
-    * allow users to create custom text files to make poems from
     * allow users to browse past saved poems
+    *
 ******************************************************************************/
 'use strict'
 /** constants **/
@@ -14,7 +13,28 @@ const prompt = require('prompt')           // node module to ask user questions 
 const colors = require('colors/safe')      // node module to color strings
 const clear = require('clear')             // node module to clear console
 const cheerio = require('cheerio')         // node module to simulate jQuery through back end JS
-const fs = require('fs')                   // node module to do anything related to files.s
+const fs = require('fs')                   // node module to do anything related to files.
+const menuScreen = [
+  '~~~~~~~~~~POETRY GENERATOR~~~~~~~~~~',
+  '',
+  '',
+  'What would you like to do?',
+  '    (1):  Create a Poem',
+  '    (2):  Add a text file',
+  '    (3):  Browse past poems',
+  '',
+  'Enter choice here'
+]
+// Prompt parameters
+const menu = {
+  name: 'choice',
+  description: colors.red(menuScreen.join('\n')),
+  format: /[1-3]{1}/i,
+  message: 'Please choose a number from 1 - 3',
+  type: 'integer',
+  required: true
+}
+
 const properties = [
   {
     name: 'fileOrWebsite',
@@ -69,6 +89,7 @@ const properties = [
     required: true
   }
 ]
+
 const saveProperties = [
   {
     name: 'saveChoice',
@@ -97,6 +118,29 @@ const saveProperties = [
     }
   }
 ]
+
+const textFileCreation = [
+  {
+    name: 'txtFileName',
+    description: colors.red('Enter a file name'),
+    type: 'string',
+    conform: function (value) {
+      return !fs.existsSync(process.cwd() + '/txt_files/' + value.split(' ').join('_') + (value.endsWith('.txt') ? '' : '.txt'))
+    },
+    message: 'File already exists. Please input a new file name.',
+    before: function (value) {
+      return process.cwd() + '/txt_files/' + value.split(' ').join('_') + (value.endsWith('.txt') ? '' : '.txt')
+    },
+    required: true
+  },
+  {
+    name: 'fileContents',
+    description: colors.red('Enter the text you want to have in the file\nPlease remove all paragraph breaks and line breaks from your input'),
+    type: 'string',
+    required: true
+  }
+]
+
 /** algorithms **/
 function removeElementFromBody ($, element) {
   $(element).each(function () {
@@ -125,70 +169,100 @@ function createPoem (text, poemLength, lineNumber) {
   }
   return poem
 }
+
 /** implementation of both user interface and program **/
 clear()
 prompt.message = ''
 prompt.delimiter = colors.yellow(':')
 prompt.start()
-// Run the prompt
-prompt.get(properties, function (error, res) {
+prompt.get(menu, function (error, res) {
   if (error) {
     clear()
     return
   }
   clear()
-  if (res.website) {
-    request(res.website, function (error, response, body) {
-      // don't run the following code if there is an error
-      if (error) return
-      var $ = cheerio.load(body, { ignoreWhitespace: true })
-
-      // Create a title for the poem using the title of the webpage
-      var title = $('title').text()
-      console.log(colors.cyan('A poem generated from ' + title + '\n\n'))
-
-      removeElementFromBody($, 'script')
-      let allText = $('body *').text()
-                    .replace(/[.,\/#?|!$%\^&\*;:{}=\-_`~()"]|\d+/g, '')
-                    .split(' ')
-                    .filter(Boolean)
-      let poemText = createPoem(allText, res.poemLength, res.lineNumber)
-      console.log(colors.green(poemText + '\n\n\n\n'))
-
-      // final user prompt
+  switch (res.choice) {
+    case 1 :
       prompt.start()
-      prompt.get(saveProperties, function (error, res) {
-        if (error) return
-        if (res.saveChoice) {
-          fs.openSync(res.fileName, 'w')
-          fs.writeFile(res.fileName, 'A poem generated from ' + title + '\n\n' + poemText.replace(/\t+/g, ''))
+      prompt.get(properties, function (error, res) {
+        if (error) {
+          clear()
+          return
         }
         clear()
-      })
-    })
-  } else {
-    fs.readFile(res.file, function (err, data) {
-      if (err) return
-      let title = res.file.split('/')[6]
-      console.log(colors.cyan('A poem generated from ' + title + '\n\n'))
-      let allText = data.toString()
-                    .replace(/\r?\n|\r/g, ' ')
-                    .replace(/[.,\/#?|!$%\^&\*;:{}=\-_`~()"]|\d+/g, '')
-                    .split(' ')
-                    .filter(Boolean)
-      let poemText = createPoem(allText, res.poemLength, res.lineNumber)
-      console.log(colors.green(poemText + '\n\n\n\n'))
+        if (res.website) {
+          request(res.website, function (error, response, body) {
+            // don't run the following code if there is an error
+            if (error) return
+            var $ = cheerio.load(body, { ignoreWhitespace: true })
 
-      // final user prompt
-      prompt.start()
-      prompt.get(saveProperties, function (error, res) {
-        if (error) return
-        if (res.saveChoice) {
-          fs.openSync(res.fileName, 'w')
-          fs.writeFile(res.fileName, 'A poem generated from ' + title + '\n\n' + poemText.replace(/\t+/g, ''))
+            // Create a title for the poem using the title of the webpage
+            var title = $('title').text()
+            console.log(colors.cyan('A poem generated from ' + title + '\n\n'))
+
+            removeElementFromBody($, 'script')
+            let allText = $('body *').text()
+                          .replace(/[.,\/#?|!$%\^&\*;:{}=\-_`~()"]|\d+/g, '')
+                          .split(' ')
+                          .filter(Boolean)
+            let poemText = createPoem(allText, res.poemLength, res.lineNumber)
+            console.log(colors.green(poemText + '\n\n\n\n'))
+
+            // final user prompt
+            prompt.start()
+            prompt.get(saveProperties, function (error, res) {
+              if (error) return
+              if (res.saveChoice) {
+                fs.openSync(res.fileName, 'w')
+                fs.writeFile(res.fileName, 'A poem generated from ' + title + '\n\n' + poemText.replace(/\t+/g, ''))
+              }
+              clear()
+            })
+          })
+        } else {
+          fs.readFile(res.file, function (err, data) {
+            if (err) return
+            let title = res.file.split('/')[6]
+            console.log(colors.cyan('A poem generated from ' + title + '\n\n'))
+            let allText = data.toString()
+                          .replace(/\r?\n|\r/g, ' ')
+                          .replace(/[.,\/#?|!$%\^&\*;:{}=\-_`~()"]|\d+/g, '')
+                          .split(' ')
+                          .filter(Boolean)
+            let poemText = createPoem(allText, res.poemLength, res.lineNumber)
+            console.log(colors.green(poemText + '\n\n\n\n'))
+
+            // final user prompt
+            prompt.start()
+            prompt.get(saveProperties, function (error, res) {
+              if (error) return
+              if (res.saveChoice) {
+                fs.openSync(res.fileName, 'w')
+                fs.writeFile(res.fileName, 'A poem generated from ' + title + '\n\n' + poemText.replace(/\t+/g, ''))
+              }
+              clear()
+            })
+          })
         }
+      })
+      break
+    case 2 :
+      prompt.start()
+      prompt.get(textFileCreation, function (error, res) {
+        if (error) {
+          clear()
+          return
+        }
+        fs.openSync(res.txtFileName, 'w')
+        fs.writeFile(res.txtFileName, res.fileContents)
         clear()
       })
-    })
+      break
+    case 3 :
+      let poems = fs.readdirSync(process.cwd() + '/txt_files/')
+      poems.shift()
+      console.log(poems.join('\n'))
+      clear()
+      break
   }
 })

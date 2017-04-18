@@ -2,9 +2,6 @@
   A javascript program with a cli that gets the code of a webpage and
   creates poetry from its content.
 
-  @TODO:
-    * allow users to browse past saved poems
-    *
 ******************************************************************************/
 'use strict'
 /** constants **/
@@ -21,7 +18,7 @@ const menuScreen = [
   'What would you like to do?',
   '    (1):  Create a Poem',
   '    (2):  Add a text file',
-  '    (3):  Browse past poems',
+  '    (3):  Read random poem',
   '',
   'Enter choice here'
 ]
@@ -259,10 +256,12 @@ prompt.get(menu, function (error, res) {
       })
       break
     case 3 :
-      let poems = fs.readdirSync(process.cwd() + '/txt_files/')
+      let poems = fs.readdirSync(process.cwd() + '/poetry/')
       poems.shift()
-      console.log(poems.join('\n'))
-      clear()
+      fs.readFile(process.cwd() + '/poetry/' + poems[Math.floor(Math.random() * poems.length)], function (err, data) {
+        if (err) return
+        console.log(data.toString() + '\n\n\n\n\n')
+      })
       break
   }
 })

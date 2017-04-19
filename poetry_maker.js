@@ -104,14 +104,14 @@ const saveProperties = [
     description: colors.red('Enter a file name'),
     type: 'string',
     conform: function (value) {
-      return !fs.existsSync(process.cwd() + '/poetry/' + value + '.txt')
+      return !fs.existsSync(process.cwd() + '/poetry/' + value.split(' ').join('_') + (value.endsWith('.txt') ? '' : '.txt'))
     },
     message: 'File already exists. Please input a new file name.',
     ask: function () {
       return prompt.history('saveChoice').value
     },
     before: function (value) {
-      return process.cwd() + '/poetry/' + value + '.txt'
+      return process.cwd() + '/poetry/' + value.split(' ').join('_') + (value.endsWith('.txt') ? '' : '.txt')
     }
   }
 ]
@@ -156,12 +156,16 @@ function makeRandomizedArray (currentArrayLength, resultArrayLength) {
 }
 function createPoem (text, poemLength, lineNumber) {
   let poem = ''
+  let word
   // make an array of set length full of randomized non-repeating numbers
   let randomizedWordArray = makeRandomizedArray(text.length, poemLength)
   let k = Math.floor(poemLength / lineNumber)
   for (var i = 0, length = randomizedWordArray.length; i < length; ++i) {
+    word = text[randomizedWordArray[i]].split('').map(function (a, b) {
+      return (i % k === 0 && b === 0) ? a.toUpperCase() : a
+    })
     poem += (i % k === 0 ? '\t' : '') +
-          text[randomizedWordArray[i]] +
+          word.join('') +
           ((i !== 0) && (i + 1) % k === 0 ? '\n' : ' ')
   }
   return poem
@@ -200,6 +204,7 @@ prompt.get(menu, function (error, res) {
             removeElementFromBody($, 'script')
             let allText = $('body *').text()
                           .replace(/[.,\/#?|!$%\^&\*;:{}=\-_`~()"]|\d+/g, '')
+                          .toLowerCase()
                           .split(' ')
                           .filter(Boolean)
             let poemText = createPoem(allText, res.poemLength, res.lineNumber)
@@ -224,6 +229,7 @@ prompt.get(menu, function (error, res) {
             let allText = data.toString()
                           .replace(/\r?\n|\r/g, ' ')
                           .replace(/[.,\/#?|!$%\^&\*;:{}=\-_`~()"]|\d+/g, '')
+                          .toLowerCase()
                           .split(' ')
                           .filter(Boolean)
             let poemText = createPoem(allText, res.poemLength, res.lineNumber)

@@ -1,9 +1,6 @@
 # poetry-maker
 
 
-Download it through NPM using 
-
-
 
 ## What is it?
 Poetry Maker is a project I am working on that generates poems from random words taken from either websites or text files.

@@ -1,6 +1,6 @@
 {
   "name": "poetry-maker",
-  "version": "4.2.0",
+  "version": "5.0.0",
   "description": "",
   "main": "poetry_maker.js",
   "scripts": {

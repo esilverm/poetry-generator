@@ -4,7 +4,7 @@
 
 ## What is it?
 Poetry Maker is a project I am working on that generates poems from random words taken from either websites or text files.
-It also happens to be my submission for a class project (class will be disclosed later for protection against people taking my code to use for their own project)
+It also happens to be my submission for the AP Computer Science Principles Create Performance Task
 
 ## What are some features of this program?
 It runs a command line interface that allows users to create poems from websites or pre-made text files

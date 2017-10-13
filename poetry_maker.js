@@ -3,7 +3,6 @@
   creates poetry from its content.
 
 ******************************************************************************/
-'use strict'
 /** constants **/
 const request = require('request')         // node module to get the content of a webpage
 const prompt = require('prompt')           // node module to ask user questions and respond to them

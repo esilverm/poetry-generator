@@ -148,17 +148,17 @@ function checkForRepeatedValue (array, valueToCheck) {
 }
 function makeRandomizedArray (currentArrayLength, resultArrayLength) {
   for (var finalArray = []; resultArrayLength; --resultArrayLength) {
-    let value = Math.floor(Math.random() * currentArrayLength)
+    var value = Math.floor(Math.random() * currentArrayLength)
     checkForRepeatedValue(finalArray, value) ? finalArray.push(value) : finalArray.push(Math.floor(Math.random() * currentArrayLength))
   }
   return finalArray
 }
 function createPoem (text, poemLength, lineNumber) {
-  let poem = ''
-  let word
+  var poem = ''
+  var word
   // make an array of set length full of randomized non-repeating numbers
-  let randomizedWordArray = makeRandomizedArray(text.length, poemLength)
-  let k = Math.floor(poemLength / lineNumber)
+  var randomizedWordArray = makeRandomizedArray(text.length, poemLength)
+  var k = Math.floor(poemLength / lineNumber)
   for (var i = 0, length = randomizedWordArray.length; i < length; ++i) {
     word = text[randomizedWordArray[i]].split('').map(function (a, b) {
       return (i % k === 0 && b === 0) ? a.toUpperCase() : a
@@ -201,12 +201,12 @@ prompt.get(menu, function (error, res) {
             console.log(colors.cyan('A poem generated from ' + title + '\n\n'))
 
             removeElementFromBody($, 'script')
-            let allText = $('body *').text()
+            var allText = $('body *').text()
                           .replace(/[.,\/#?|!$%\^&\*;:{}=\-_`~()"]|\d+/g, '')
                           .toLowerCase()
                           .split(' ')
                           .filter(Boolean)
-            let poemText = createPoem(allText, res.poemLength, res.lineNumber)
+            var poemText = createPoem(allText, res.poemLength, res.lineNumber)
             console.log(colors.green(poemText + '\n\n\n\n'))
 
             // final user prompt
@@ -223,15 +223,15 @@ prompt.get(menu, function (error, res) {
         } else {
           fs.readFile(res.file, function (err, data) {
             if (err) return
-            let title = res.file.split('/')[6]
+            var title = res.file.split('/')[6]
             console.log(colors.cyan('A poem generated from ' + title + '\n\n'))
-            let allText = data.toString()
+            var allText = data.toString()
                           .replace(/\r?\n|\r/g, ' ')
                           .replace(/[.,\/#?|!$%\^&\*;:{}=\-_`~()"]|\d+/g, '')
                           .toLowerCase()
                           .split(' ')
                           .filter(Boolean)
-            let poemText = createPoem(allText, res.poemLength, res.lineNumber)
+            var poemText = createPoem(allText, res.poemLength, res.lineNumber)
             console.log(colors.green(poemText + '\n\n\n\n'))
 
             // final user prompt
@@ -261,7 +261,7 @@ prompt.get(menu, function (error, res) {
       })
       break
     case 3 :
-      let poems = fs.readdirSync(process.cwd() + '/poetry/')
+      var poems = fs.readdirSync(process.cwd() + '/poetry/')
       poems.shift()
       fs.readFile(process.cwd() + '/poetry/' + poems[Math.floor(Math.random() * poems.length)], function (err, data) {
         if (err) return
